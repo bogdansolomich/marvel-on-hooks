@@ -1,82 +1,78 @@
-import { Component } from "react";
-import Spinner from "../spinner/Spinner";
-import ErrorMessage from "../errorMessage/ErrorMessage";
-import MarvelService from "../../services/MarvelService";
-import "./charList.scss";
+import { useState, useEffect } from 'react';
+import useMarvelService from '../../services/MarvelService';
+import Spinner from '../spinner/Spinner';
+import ErrorMessage from '../errorMessage/ErrorMessage';
 
-class CharList extends Component {
-  state = {
-    charList: [],
-    loading: true,
-    error: false,
+import './comicsList.scss';
+
+const ComicsList = () => {
+  const [comicsList, setComicsList] = useState([]);
+  const [newItemLoading, setnewItemLoading] = useState(false);
+  const [offset, setOffset] = useState(0);
+  const [comicsEnded, setComicsEnded] = useState(false);
+
+  const { loading, error, getAllComics } = useMarvelService();
+
+  useEffect(() => {
+    onRequest(offset, true);
+  }, []);
+
+  const onRequest = (offset, initial) => {
+    initial ? setnewItemLoading(false) : setnewItemLoading(true);
+    getAllComics(offset).then(onComicsListLoaded);
   };
 
-  marvelService = new MarvelService();
-
-  componentDidMount() {
-    this.marvelService
-      .getAllCharacters()
-      .then(this.onCharListLoaded)
-      .catch(this.onError);
-  }
-
-  onCharListLoaded = (charList) => {
-    this.setState({
-      charList,
-      loading: false,
-    });
+  const onComicsListLoaded = newComicsList => {
+    let ended = false;
+    if (newComicsList.length < 8) {
+      ended = true;
+    }
+    setComicsList([...comicsList, ...newComicsList]);
+    setnewItemLoading(false);
+    setOffset(offset + 8);
+    setComicsEnded(ended);
   };
 
-  onError = () => {
-    this.setState({
-      error: true,
-      loading: false,
-    });
-  };
-
-  // Этот метод создан для оптимизации,
-  // чтобы не помещать такую конструкцию в метод render
-  renderItems(arr) {
-    const items = arr.map((item) => {
-      let imgStyle = { objectFit: "cover" };
-      if (
-        item.thumbnail ===
-        "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg"
-      ) {
-        imgStyle = { objectFit: "unset" };
-      }
-
+  function renderItems(arr) {
+    const items = arr.map((item, i) => {
       return (
-        <li className="char__item" key={item.id}>
-          <img src={item.thumbnail} alt={item.name} style={imgStyle} />
-          <div className="char__name">{item.name}</div>
+        <li className="comics__item" key={i}>
+          <a href="#">
+            <img
+              src={item.thumbnail}
+              alt={item.title}
+              className="comics__item-img"
+            />
+            <div className="comics__item-name">{item.title}</div>
+            <div className="comics__item-price">{item.price}</div>
+          </a>
         </li>
       );
     });
-    // А эта конструкция вынесена для центровки спиннера/ошибки
-    return <ul className="char__grid">{items}</ul>;
+
+    return <ul className="comics__grid">{items}</ul>;
   }
 
-  render() {
-    const { charList, loading, error } = this.state;
+  const items = renderItems(comicsList);
 
-    const items = this.renderItems(charList);
+  const errorMessage = error ? <ErrorMessage /> : null;
+  const spinner = loading && !newItemLoading ? <Spinner /> : null;
 
-    const errorMessage = error ? <ErrorMessage /> : null;
-    const spinner = loading ? <Spinner /> : null;
-    const content = !(loading || error) ? items : null;
+  return (
+    <div className="comics__list">
+      {errorMessage}
+      {spinner}
+      {items}
+      <button
+        disabled={newItemLoading}
+        style={{ display: comicsEnded ? 'none' : 'block' }}
+        className="button button__main button__long"
+        onClick={() => onRequest(offset)}
+      >
+        <div className="inner">load more</div>
+      </button>
+    </div>
+  );
+};
 
-    return (
-      <div className="char__list">
-        {errorMessage}
-        {spinner}
-        {content}
-        <button className="button button__main button__long">
-          <div className="inner">load more</div>
-        </button>
-      </div>
-    );
-  }
-}
-
-export default CharList;
+export default ComicsList;

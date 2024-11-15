@@ -1,27 +1,18 @@
-import { useEffect, useState } from 'react';
-import MarvelService from '../../services/MarvelService';
+import { useState, useEffect } from 'react';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
+import useMarvelService from '../../services/MarvelService';
 
 import './randomChar.scss';
 import mjolnir from '../../resources/img/mjolnir.png';
 
 const RandomChar = () => {
-  // constructor(props) {
-  //   super(props);
-  //   // console.log("constructor");
-  //   // this.updateChar();
-  //   // setInterval(this.updateChar, 3000);
-  // }
-  const [char, SetChar] = useState({});
-  const [loading, SetLoading] = useState(true);
-  const [error, SetError] = useState(false);
-
-  const marvelService = new MarvelService();
+  const [char, setChar] = useState(null);
+  const { loading, error, getCharacter, clearError } = useMarvelService();
 
   useEffect(() => {
     updateChar();
-    const timerId = setInterval(updateChar, 6000);
+    const timerId = setInterval(updateChar, 60000);
 
     return () => {
       clearInterval(timerId);
@@ -29,28 +20,18 @@ const RandomChar = () => {
   }, []);
 
   const onCharLoaded = char => {
-    SetLoading(false);
-    SetChar(char);
-  };
-
-  const onCharLoading = () => {
-    SetLoading(true);
-  };
-
-  const onError = () => {
-    SetLoading(false);
-    SetError(true);
+    setChar(char);
   };
 
   const updateChar = () => {
-    const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
-    onCharLoading();
-    marvelService.getCharacter(id).then(onCharLoaded).catch(onError);
+    clearError();
+    const id = Math.floor(Math.random() * (1011400 - 1011000)) + 1011000;
+    getCharacter(id).then(onCharLoaded);
   };
 
   const errorMessage = error ? <ErrorMessage /> : null;
   const spinner = loading ? <Spinner /> : null;
-  const content = !(errorMessage || spinner) ? <View char={char} /> : null;
+  const content = !(loading || error || !char) ? <View char={char} /> : null;
 
   return (
     <div className="randomchar">
@@ -75,7 +56,6 @@ const RandomChar = () => {
 
 const View = ({ char }) => {
   const { name, description, thumbnail, homepage, wiki } = char;
-
   let imgStyle = { objectFit: 'cover' };
   if (
     thumbnail ===

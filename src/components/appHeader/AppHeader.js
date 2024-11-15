@@ -4,18 +4,18 @@ const AppHeader = () => {
   return (
     <header className="app__header">
       <h1 className="app__title">
-        <p>
+        <a href="/">
           <span>Marvel</span> information portal
-        </p>
+        </a>
       </h1>
       <nav className="app__menu">
         <ul>
           <li>
-            <p>Characters</p>
+            <a href="/">Characters</a>
           </li>
           /
           <li>
-            <p>Comics</p>
+            <a href="/">Comics</a>
           </li>
         </ul>
       </nav>
