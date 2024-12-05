@@ -26,10 +26,18 @@ const SinglePage = ({ Component, dataType }) => {
 
     switch (dataType) {
       case 'comic':
-        getComic(id).then(onDataLoaded);
+        getComic(id)
+          .then(onDataLoaded)
+          .catch(() => setData(null));
         break;
       case 'character':
-        getCharacter(id).then(onDataLoaded);
+        getCharacter(id)
+          .then(onDataLoaded)
+          .catch(() => setData(null));
+        break;
+      default:
+        console.warn(`Unsupported dataType: ${dataType}`);
+        break;
     }
   };
 
