@@ -1,10 +1,10 @@
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-
 import useMarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import AppBanner from '../appBanner/AppBanner';
+import './singleComicLayout/singleComicLayout.scss';
 
 // Хотелось бы вынести функцию по загрузке данных как отдельный аргумент
 // Но тогда мы потеряем связь со стэйтами загрузки и ошибки
