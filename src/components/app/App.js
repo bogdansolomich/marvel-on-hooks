@@ -13,6 +13,7 @@ const SingleComicLayout = lazy(() =>
 const SingleCharacterLayout = lazy(() =>
   import('../pages/singleCharacterLayout/SingleCharacterLayout')
 );
+
 const SinglePage = lazy(() => import('../pages/SinglePage'));
 
 const App = () => {
@@ -25,7 +26,12 @@ const App = () => {
             <Routes>
               <Route path="/" element={<MainPage />} />
               <Route path="/comics" element={<ComicsPage />} />
-              <Route path="/comics/:comicId" element={<SingleComicLayout />} />
+              <Route
+                path="/comics/:comicId"
+                element={
+                  <SinglePage Component={SingleComicLayout} dataType="comic" />
+                }
+              />
               {/* <Route path="/characters/:id">
                 <SinglePage
                   Component={SingleCharacterLayout}
