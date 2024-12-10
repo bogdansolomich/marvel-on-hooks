@@ -5,6 +5,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import useMarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
+import { useMemo } from 'react';
 
 import './charList.scss';
 
@@ -105,9 +106,14 @@ const CharList = props => {
     );
   }
 
+  const Elements = useMemo(() => {
+    return setContent(process, () => renderItems(charList), newItemLoading);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [process]);
+
   return (
     <div className="char__list">
-      {setContent(process, () => renderItems(charList), newItemLoading)}
+      {Elements}
       <button
         disabled={newItemLoading}
         style={{ display: charEnded ? 'none' : 'block' }}
